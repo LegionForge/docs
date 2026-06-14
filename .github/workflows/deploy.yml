@@ -42,6 +42,9 @@ jobs:
       - name: Build site
         run: mkdocs build --strict
 
+      - name: Copy CNAME into build output
+        run: cp CNAME site/CNAME
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
