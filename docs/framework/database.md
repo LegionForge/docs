@@ -31,6 +31,90 @@ Each role's password is in macOS Keychain under `service=<role>, account=api_key
 | `tool_registry` | Registered tools with Ed25519 signatures. |
 | `langgraph_checkpoints` | LangGraph's `AsyncPostgresSaver` state. |
 
+```mermaid
+erDiagram
+    gateway_users ||--o{ tasks : submits
+    gateway_users ||--o{ api_usage : accumulates
+    gateway_users ||--o{ connector_identities : maps_to
+    tasks ||--o{ api_usage : generates
+    tasks ||--o{ threat_events : "may produce"
+    tasks ||--o{ audit_log : records
+    tasks ||--o{ langgraph_checkpoints : checkpoints
+    tool_registry ||--o{ threat_events : "may flag"
+    threat_rules ||--o{ threat_events : "rule fires"
+
+    gateway_users {
+        bigint id PK
+        text name
+        text api_key_hash
+        bigint quota_daily
+        text status
+    }
+    tasks {
+        text id PK
+        bigint user_id FK
+        text prompt
+        text status
+        jsonb result
+        timestamp created_at
+    }
+    api_usage {
+        bigint id PK
+        text task_id FK
+        bigint user_id FK
+        text provider
+        int tokens_in
+        int tokens_out
+        numeric cost_usd
+    }
+    threat_events {
+        bigint id PK
+        text event_type
+        text task_id
+        bigint user_id
+        text severity
+        jsonb payload
+    }
+    audit_log {
+        bigint id PK
+        text event_type
+        jsonb payload
+        bytea prev_hash
+        bytea this_hash
+    }
+    tool_registry {
+        text tool_id PK
+        text name
+        bytea code_hash
+        bytea signature
+    }
+    threat_rules {
+        bigint id PK
+        text rule_name
+        text match_pattern
+        text match_field
+        text action
+        boolean enabled
+    }
+    documents {
+        bigint id PK
+        text content
+        vector embedding
+        jsonb metadata
+    }
+    connector_identities {
+        text connector
+        text platform_user_id
+        bigint gateway_user_id FK
+    }
+    langgraph_checkpoints {
+        text checkpoint_id PK
+        text task_id FK
+        jsonb state
+        timestamp created_at
+    }
+```
+
 ## RAG with pgvector
 
 The `documents` table stores text chunks with 768-dimensional embeddings (produced by `mxbai-embed-large`). It uses an HNSW index for fast approximate nearest-neighbor search:

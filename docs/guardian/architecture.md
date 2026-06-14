@@ -2,41 +2,33 @@
 
 ## Component layout
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│   Agent framework (LegionForge / LangChain / ...)          │
-│                                                             │
-│   For every tool invocation:                                │
-│      POST http://guardian:9766/check                        │
-│      ↓                                                      │
-│      ←  { allow: true } or { allow: false, reason: "..." } │
-│                                                             │
-└────────────────────────┬────────────────────────────────────┘
-                         │ HTTP (port 9766)
-                         ↓
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│   Guardian container                                        │
-│                                                             │
-│   FastAPI app                                               │
-│   ├─ /check         — run all 7 checks                     │
-│   ├─ /health        — liveness                              │
-│   ├─ /metrics       — Prometheus                            │
-│   ├─ /invalidate    — force rule cache refresh             │
-│   └─ /canary        — synthetic check, for monitoring      │
-│                                                             │
-│   Rule cache (in-memory)                                    │
-│      ↑ refreshed every 10s from PostgreSQL                  │
-│                                                             │
-└────────────────────────┬────────────────────────────────────┘
-                         │ asyncpg
-                         ↓
-┌─────────────────────────────────────────────────────────────┐
-│   PostgreSQL                                                │
-│   ├─ tool_registry  (read-only for guardian role)          │
-│   └─ threat_rules   (read + write for guardian role)       │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph AgentFW["Agent framework (LegionForge / LangChain / AutoGen / ...)"]
+        Tool["Every tool invocation<br/>checks first"]
+    end
+
+    subgraph GuardianBox["Guardian container (:9766)"]
+        Check["/check<br/>run all 7 checks"]
+        Health["/health<br/>liveness"]
+        Metrics["/metrics<br/>Prometheus"]
+        Invalidate["/invalidate-cache<br/>force reload"]
+        Canary["/canary<br/>synthetic check"]
+        Cache["Rule cache<br/>(in-memory)"]
+    end
+
+    subgraph PG[("PostgreSQL")]
+        Reg["tool_registry<br/>(read-only)"]
+        Rules["threat_rules<br/>(read + write)"]
+        Events["threat_events<br/>(append-only)"]
+    end
+
+    Tool -- "HTTP POST" --> Check
+    Check -- "allow / deny" --> Tool
+    Cache -- "refresh every 10s" --> Rules
+    Check --> Cache
+    Check --> Reg
+    Check -- "log denial" --> Events
 ```
 
 ## Request lifecycle

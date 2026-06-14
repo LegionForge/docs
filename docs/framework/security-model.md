@@ -4,14 +4,20 @@ LegionForge's security model is built on a simple thesis: **the LLM is not trust
 
 ## Trust boundaries
 
-There are three boundaries in the system. Each one is the only place validation should happen:
+There are three boundaries in the system. Each is the only place validation should happen:
 
-```
-[user input]  →  [internal processing]  →  [tool execution]  →  [user output]
-        ↑                                        ↑                     ↑
-   boundary 1                              boundary 2            boundary 3
-   sanitize_input()                       Guardian               sanitize_output()
-   injection check                        per-tool checks        PII redaction
+```mermaid
+flowchart LR
+    UserIn([User input]) --> B1{{"Boundary 1<br/>sanitize_input()<br/>injection check"}}
+    B1 --> Internal["Internal processing<br/>(trusts data)"]
+    Internal --> B2{{"Boundary 2<br/>Guardian<br/>7 deterministic checks"}}
+    B2 --> Tools["Tool execution"]
+    Tools --> Internal
+    Internal --> B3{{"Boundary 3<br/>sanitize_output()<br/>PII redaction"}}
+    B3 --> UserOut([User output])
+
+    classDef boundary fill:#0d1117,stroke:#00ff88,color:#00ff88,stroke-width:2px
+    class B1,B2,B3 boundary
 ```
 
 Validating at processing nodes is a footgun: every node has to know about every threat, and a missed validation means the threat slips through. Validating at boundaries means there are exactly three places to audit.

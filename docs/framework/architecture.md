@@ -29,39 +29,113 @@ LegionForge is built around five non-negotiable principles. Every module and eve
 
 ## Three independent loop-protection layers
 
-A single failure shouldn't let an agent spin forever. Three independent layers must all pass:
+A single failure shouldn't let an agent spin forever. Three independent layers must all pass on every step. If any one fires, execution halts and a threat event is logged.
 
-1. **Step counter** — LangGraph recursion limit. Hard stop on N steps. Cheap, blunt, always-on.
-2. **Action-history loop detection** — MD5 hash of the last *window=5* tool-call signatures; if the same signature appears *threshold=3* times in the window, halt.
-3. **Token budget guard** — alert at 80% of the per-task budget, force-end at 100%.
+```mermaid
+flowchart TB
+    Start([Step begins]) --> L1{Step counter<br/>limit reached?}
+    L1 -->|yes| H1[HALT<br/>STEP_LIMIT_REACHED]
+    L1 -->|no| L2{Action history<br/>signature repeated<br/>3× in last 5 steps?}
+    L2 -->|yes| H2[HALT<br/>LOOP_DETECTED]
+    L2 -->|no| L3{Token budget<br/>used >= 100%?}
+    L3 -->|yes| H3[HALT<br/>TOKEN_BUDGET_EXCEEDED]
+    L3 -->|no| Continue([Continue to next step])
 
-Each layer logs a distinct threat event ([Threat Events](threat-events.md)).
+    classDef halt fill:#ff4444,stroke:#cc0000,color:#fff
+    class H1,H2,H3 halt
+```
+
+| Layer | Mechanism | Threshold |
+|---|---|---|
+| **Step counter** | LangGraph recursion limit | Hard stop on N steps |
+| **Action-history** | MD5 hash of the last 5 tool-call signatures | Same signature 3× → halt |
+| **Token budget** | Cumulative per-task token usage | Alert at 80%, force-end at 100% |
+
+See [Threat Events](threat-events.md) for the corresponding event types.
+
+## Module map
+
+```mermaid
+flowchart TB
+    subgraph Edge["Edge layer"]
+        Gateway["gateway/app.py<br/>FastAPI :8080"]
+        Connectors["connectors/<br/>Discord · Slack · Telegram<br/>WhatsApp · Webhook"]
+    end
+
+    subgraph Core["Core layer"]
+        Orchestrator["base_graph.py<br/>LangGraph template"]
+        Safeguards["safeguards.py<br/>3-layer loop protection"]
+        Sanitize["security/core.py<br/>sanitize_input/output"]
+        Factory["llm_factory.py<br/>Ollama · OpenAI · Anthropic"]
+        Rate["rate_limiter.py<br/>per-provider caps"]
+    end
+
+    subgraph GuardianBox["Guardian sidecar"]
+        GuardianAPI["security/guardian.py<br/>FastAPI :9766"]
+    end
+
+    subgraph Infra["Infrastructure"]
+        PG[("PostgreSQL 17<br/>16 tables · pgvector")]
+        Ollama["Ollama<br/>llama3.1:8b · qwen2.5:3b"]
+        Cloud["Cloud LLMs<br/>OpenAI · Anthropic · InceptionLabs"]
+    end
+
+    Connectors --> Gateway
+    Gateway --> Orchestrator
+    Orchestrator --> Sanitize
+    Orchestrator --> Safeguards
+    Orchestrator --> Factory
+    Factory --> Rate
+    Factory --> Ollama
+    Factory --> Cloud
+    Orchestrator -.->|every tool call| GuardianAPI
+    GuardianAPI <--> PG
+    Gateway <--> PG
+    Orchestrator <--> PG
+```
 
 ## Request flow
 
-A task submitted to the gateway flows through:
+A task submitted to the gateway flows through gateway → worker → orchestrator → Guardian → LLM → tools → response, with checkpoints written along the way so a paused task can be resumed.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant G as Gateway<br/>(:8080)
+    participant W as Worker
+    participant O as Orchestrator
+    participant Gr as Guardian<br/>(:9766)
+    participant L as LLM
+    participant T as Tool
+    participant DB as PostgreSQL
+
+    User->>G: POST /tasks (Bearer)
+    G->>G: Authenticate
+    G->>W: Enqueue
+    W->>O: run_orchestrator()
+    O->>O: sanitize_input()
+    O->>DB: checkpoint
+
+    loop For each step (bounded by safeguards)
+        O->>L: LLM call (rate-limited)
+        L-->>O: tool_calls
+        O->>Gr: POST /check
+        Gr->>DB: log threat_events (async)
+        Gr-->>O: allow / deny
+        O->>T: invoke (if allowed)
+        T-->>O: result
+        O->>DB: checkpoint
+    end
+
+    O->>O: sanitize_output()
+    O-->>W: result
+    W-->>G: SSE events
+    G-->>User: stream
+    G->>DB: audit_log
 ```
-User
- ↓ POST /tasks (Bearer auth)
-Gateway (src/gateway/app.py)
- ↓ task queue
-Worker — builds initial_state, calls run_orchestrator()
- ↓
-Orchestrator agent
- ├─ sanitize_input()                     ← trust boundary
- ├─ Guardian pre-invocation check        ← capability + hash + signing
- ├─ LLM call (Ollama / cloud)            ← rate-limited, cost-estimated
- ├─ tool calls                           ← deterministic dispatch
- │   └─ SecureToolNode wraps each call
- │       └─ Guardian per-tool check
- ├─ verify_node                          ← may re-prompt (MAX_VERIFY_ROUNDS=1)
- └─ sanitize_output()                    ← trust boundary
- ↓
-SSE stream → user
- ↓
-audit_log + threat_events                ← async, never block
-```
+
+The orchestrator never trusts the LLM. Every tool call passes through Guardian; every input and output crosses a sanitization boundary; every step is checkpointed so a failure mid-task is recoverable.
 
 ## Infrastructure dependencies
 
