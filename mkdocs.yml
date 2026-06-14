@@ -95,6 +95,13 @@ extra:
 
 nav:
   - Home: index.md
+  - Concepts:
+      - concepts/index.md
+      - Agents and tasks: concepts/agents-and-tasks.md
+      - Tools and capabilities: concepts/tools-and-capabilities.md
+      - Security fundamentals: concepts/security-fundamentals.md
+      - Glossary: concepts/glossary.md
+  - Quickstart: quickstart.md
   - Framework:
       - framework/index.md
       - Getting Started: framework/getting-started.md
@@ -111,6 +118,11 @@ nav:
       - Architecture: guardian/architecture.md
       - Checks: guardian/checks.md
       - Deployment: guardian/deployment.md
+  - Security:
+      - security/index.md
+      - Threat Model: security/threat-model.md
+      - Differentiators: security/differentiators.md
+      - OpenClaw incident analysis: security/openclaw-incident.md
   - Tools:
       - tools/index.md
       - llm-valet: tools/llm-valet.md
