@@ -26,6 +26,21 @@ mic -> VAD -> local STT -> safeword check -> orchestrator -> backend adapter
 
 The orchestrator routes each utterance as a new command, a soft interject into an active task, or a hard stop. Backend adapters prefer native structured interfaces where possible and use terminal control only as a fallback.
 
+## Current implementation
+
+- **Pipeline pieces exist.** Audio capture/playback, VAD segmentation, local STT, safeword detection, TTS, orchestration, and an OpenCode adapter are implemented.
+- **Hard stops cut audio too.** A hard stop now aborts backend work and stops in-progress TTS/playback.
+- **Real audio validation has started.** TTS -> STT round trips work without a microphone, and real speaker playback including barge-in has been tested on macOS.
+- **Structured adapters are preferred.** The adapter boundary favors native HTTP/SSE or headless APIs over scraping terminal output.
+- **Licensing is being cleaned up.** ConvoBox is intended to stay MIT and free for everyone; the current Piper TTS dependency has a GPL concern, so Kokoro is the identified replacement path.
+
+## Known gaps
+
+- Live microphone capture is still unverified on the current development machine because it has no input device.
+- Windows and Linux are not yet verified, though the dependency choices are intended to be cross-platform.
+- The OpenCode adapter's initially assumed endpoint paths did not match a real `opencode serve` instance; the API shape is documented, but the adapter still needs that correction.
+- Codex and Claude Code adapters are not stable yet.
+
 ## Status
 
-Scaffolding stage. Initial components exist for audio capture/playback, VAD, local STT, safeword detection, TTS, orchestration, and an OpenCode adapter. Codex and Claude Code adapters are not stable yet.
+Scaffolding stage, with real pipeline validation underway. The project is not a stable end-user app yet, but the core audio/orchestration pieces are implemented and covered by automated tests.
