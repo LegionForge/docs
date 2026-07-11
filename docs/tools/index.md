@@ -9,5 +9,6 @@ Utility tools that support the LegionForge stack. Most are usable standalone —
 | [headroom](headroom.md) | System stability monitor — memory pressure, paging, AI-powered diagnostics. |
 | [hermes-tool-test-suite](hermes-tool-test-suite.md) | pytest harness for validating Hermes AI agent tool-calling reliability across providers. |
 | [dev-rig](dev-rig.md) | Shared Python CI workflows, pre-commit config, and audit harness for LegionForge projects. |
+| [idn-analyzer](idn-analyzer.md) | Offline prompt profiler for LLM routing decisions. |
 
 All tools live under the [LegionForge GitHub organization](https://github.com/LegionForge) and are public.

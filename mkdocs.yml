@@ -130,10 +130,16 @@ nav:
       - headroom: tools/headroom.md
       - hermes-tool-test-suite: tools/hermes-tool-test-suite.md
       - dev-rig: tools/dev-rig.md
+      - idn-analyzer: tools/idn-analyzer.md
   - Apps:
       - apps/index.md
       - Jeli: apps/jeli.md
       - ADHD-OS: apps/adhd-os.md
+      - ConvoBox: apps/convobox.md
+  - Orchestration:
+      - Briarios: orchestration/briarios.md
+  - Research:
+      - Intelligence Delivery Network: research/intelligence-delivery-network.md
   - Contribute:
       - contribute/index.md
       - Contributing: contribute/contributing.md

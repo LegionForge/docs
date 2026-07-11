@@ -6,8 +6,9 @@ This is the central documentation site for the entire LegionForge ecosystem:
 
 - The **framework** ([LegionForge/LegionForge](https://github.com/LegionForge/LegionForge))
 - **Guardian** ([LegionForge/guardian](https://github.com/LegionForge/guardian))
-- Tools: [llm-valet](https://github.com/LegionForge/llm-valet), [mcp-probe](https://github.com/LegionForge/mcp-probe), [headroom](https://github.com/LegionForge/headroom), [hermes-tool-test-suite](https://github.com/LegionForge/hermes-tool-test-suite), [dev-rig](https://github.com/LegionForge/dev-rig)
-- Apps: [jeli](https://github.com/LegionForge/jeli), [ADHD-OS](https://github.com/LegionForge/ADHD-OS)
+- Tools: [llm-valet](https://github.com/LegionForge/llm-valet), [mcp-probe](https://github.com/LegionForge/mcp-probe), [headroom](https://github.com/LegionForge/headroom), [hermes-tool-test-suite](https://github.com/LegionForge/hermes-tool-test-suite), [dev-rig](https://github.com/LegionForge/dev-rig), [idn-analyzer](https://github.com/LegionForge/Intelligence-Delivery-Network-Request-Analyzer)
+- Apps: [jeli](https://github.com/LegionForge/jeli), [ADHD-OS](https://github.com/LegionForge/ADHD-OS), [ConvoBox](https://github.com/LegionForge/convobox)
+- Orchestration and research: [Briarios](https://github.com/LegionForge/Briarios), [Intelligence Delivery Network](https://github.com/LegionForge/Intelligence-Delivery-Network)
 
 ## Local development
 
