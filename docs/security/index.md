@@ -1,6 +1,6 @@
 # Security
 
-The Security section is for people evaluating LegionForge against other agent platforms with a security lens. The Framework and Guardian sections cover *how* LegionForge enforces security. This section covers *why* it differs from the others and *what* an attacker actually faces.
+The Security section is for people evaluating LegionForge as user-owned AI infrastructure. The Framework and Guardian sections cover *how* LegionForge enforces checks. This section covers *why* the model is built around custody, auditability, and human authority.
 
 ## Pages
 
@@ -12,11 +12,11 @@ The Security section is for people evaluating LegionForge against other agent pl
 
 -   :material-compare: **[Differentiators](differentiators.md)**
 
-    Side-by-side: LegionForge vs cloud agent platforms (Operator, Computer Use, Mariner) vs unguarded OSS frameworks (LangChain, AutoGen, CrewAI). Technical, not marketing.
+    Side-by-side: what changes when the user is the root of trust instead of a vendor account or an unguarded agent loop.
 
 -   :material-magnify-scan: **[OpenClaw incident analysis](openclaw-incident.md)**
 
-    What the Jan 2026 OpenClaw incident actually exposed. Which patterns LegionForge's architecture catches; which it would have caught only with operator action; which it wouldn't catch at all. Honest.
+    What the Jan 2026 OpenClaw incident exposed about fast-moving agent ecosystems, and which architectural patterns LegionForge addresses.
 
 </div>
 

@@ -1,6 +1,6 @@
 # Differentiators
 
-A technical comparison of LegionForge against the two adjacent categories: **cloud agent platforms** (OpenAI Operator, Anthropic Computer Use, Google Mariner) and **OSS agent frameworks** (LangChain, AutoGen, CrewAI, OpenClaw, Hermes). Not a marketing chart — a security-architecture comparison.
+A technical comparison of LegionForge against two adjacent categories: **cloud agent platforms** and **OSS agent frameworks**. The point is not that those projects are bad. Many of them are excellent and pushed the whole field forward. The question is simpler: who owns the memory, who can audit the system, and who decides what an agent is allowed to do?
 
 ## At a glance
 
@@ -14,59 +14,55 @@ A technical comparison of LegionForge against the two adjacent categories: **clo
 | **HITL on destructive actions** | Enforced via approval gate | Sometimes | You wire it |
 | **Tool signing** | Ed25519 on every registered tool | Internal | Not bundled |
 | **Multi-tenancy isolation** | DB role separation (5 roles) | Vendor-managed | You wire it |
-| **License** | AGPL-3.0 + commercial · Guardian MIT | Proprietary | MIT / Apache |
+| **License** | Open source, project-specific licenses | Proprietary | MIT / Apache |
 
 ## What changes when you switch categories
 
-### From a cloud agent platform → LegionForge
+### From a cloud agent platform -> LegionForge
 
 The big shifts:
 
-- **Data residency.** Your prompts, tool outputs, and conversation history stop leaving your machine.
+- **Custody.** Prompts, tool outputs, memory, and audit trails can stay on infrastructure you control.
 - **Operational burden.** You now run PostgreSQL, Ollama, and Guardian yourself. Cloud platforms handle this for you.
 - **Latency profile.** Local LLMs (Ollama llama3.1:8b on M-series Macs) are ~5-15 tokens/sec; cloud APIs are 50-200+. Local is faster on round-trip overhead, slower on raw decode speed.
 - **Cost profile.** Hardware capex + electricity vs. per-token billing. Crosses over at moderate volume.
-- **Audit and compliance.** You get the audit log, the hash chain, the threat events. You can prove what happened. Cloud platforms can't (or won't) give you the same visibility.
+- **Audit and compliance.** You get the audit log, the hash chain, the threat events, and the memory provenance trail. You can inspect what happened without waiting for a vendor export.
 
-The platform that's *also* trying to occupy the LegionForge quadrant is rare. Most local agent setups are unguarded — they trade cloud-residency for vendor-trust, but they don't add security in exchange.
+The tradeoff is real: you accept more operational responsibility in exchange for more custody and auditability.
 
-### From an OSS framework (LangChain / AutoGen / CrewAI) → LegionForge
+### From an OSS framework (LangChain / AutoGen / CrewAI) -> LegionForge
 
 The big shifts:
 
-- **Less flexibility.** LegionForge has opinions. The orchestrator graph is a specific shape; tools must be registered with capabilities; mutations require HITL. If you're building a research prototype where flexibility matters more than guardrails, the OSS frameworks are easier.
-- **More enforcement.** Guardian's checks aren't optional. The audit log writes whether you want it or not. Loop protection fires whether you configured it or not. The "safe by default" stance is a feature when you ship to production, a friction when you're prototyping.
+- **Less flexibility.** LegionForge has opinions. Tools carry capabilities, mutations can require human gates, and memory carries provenance. If you are building a research prototype where flexibility matters more than guardrails, general-purpose frameworks are easier.
+- **More enforcement.** Guardian checks, audit logs, loop protection, trust scoring, and memory governance are not left as afterthoughts. That stance is useful when you care about long-lived agents and personal memory; it is friction when you only need a quick prototype.
 - **Database dependency.** LegionForge requires PostgreSQL. OSS frameworks can run with in-memory state. PostgreSQL gives us the audit chain, the LangGraph checkpoints, the threat rule hot-reload — but it's a real dependency to operate.
 - **Threat model.** LegionForge has one; OSS frameworks largely leave that to you. If you're building a public-facing agent, that's a feature. If you're building an internal tool with low blast radius, it's overhead.
 
 The right framing: **OSS frameworks are substrates; LegionForge is a hardened platform.** The substrate is more flexible but you bring the hardening. The platform is less flexible but the hardening is included.
 
-## On the OpenClaw / Hermes / row-bot generation
+## On the fast-moving agent generation
 
-A wave of agent platforms launched in late 2025 / early 2026, several reaching tens of thousands of GitHub stars in days. Their general pattern:
+A wave of agent platforms launched in late 2025 / early 2026, several reaching large audiences quickly. That work matters: it proved there is real demand for agentic software that is easier to install, extend, and use.
 
-- **Low-friction install** — usually a one-line installer or Docker image
-- **Skills marketplace** — third-party tools / "skills" that anyone can publish
-- **Cloud-augmented** — local execution with cloud LLM calls
-- **Light or no security model** — auth is API-key-style, tool calls are trust-the-LLM
+It also surfaced a structural lesson. Low-friction agents, third-party skills, local execution, cloud model calls, and broad tool access create a lot of power very quickly. Without signing, scoped capabilities, provenance, and per-call checks, the same openness that makes a platform useful can also make it hard to trust.
 
-This is the right shape for adoption velocity. It's the wrong shape for shipping to users with valuable data.
+LegionForge's response is not to reject that generation of tools. It is to add the parts that make long-lived, user-owned systems safer to operate: custody, auditability, deterministic guardrails, and human authority over high-impact changes.
 
-The Jan 2026 OpenClaw analysis — 512 vulnerabilities flagged by Kaspersky, active data exfiltration in third-party skills found by Cisco — isn't a story about OpenClaw being uniquely bad. It's a story about the **category** being structurally vulnerable. Skills marketplaces with no signing, no capability scoping, and no per-call security checks will always have this profile. The same pattern will repeat across every platform in this category.
-
-See [OpenClaw incident analysis](openclaw-incident.md) for the specific architectural patterns and which would have been caught by LegionForge's design — and which wouldn't have.
+See [OpenClaw incident analysis](openclaw-incident.md) for one concrete case study and which architectural patterns LegionForge addresses, partially addresses, or does not claim to solve.
 
 ## Where LegionForge specifically differs
 
-The five concrete properties that distinguish LegionForge:
+The concrete properties that distinguish LegionForge:
 
-1. **Capability-scoped tool calls.** A task's capability scope is set at submission and never widens. Most other frameworks have no scope concept; the agent can call any registered tool.
-2. **Cryptographically signed tools.** Every tool is Ed25519-signed at registration. Supply-chain substitution is detected at invocation. No other agent framework we've found does this by default.
-3. **Deterministic pre-call security pipeline.** Guardian's 7 checks run in ~3-5ms on every tool call. No LLM in the hot path. Predictable, auditable, fast.
-4. **Hash-chained audit log.** Every action is in the log. Tampering breaks the chain. Compliance teams can verify integrity in one pass.
-5. **HITL approval gate baked in.** Destructive actions cross a human-in-the-loop boundary by default. You can relax it per-tool; you can't relax it by accident.
+1. **User-owned memory and audit state.** Memory, provenance, and audit trails are designed to live under the user's custody.
+2. **Capability-scoped tool calls.** A task's capability scope is set at submission and should not silently widen.
+3. **Cryptographically signed tools.** Registered tools can be checked for supply-chain substitution at invocation.
+4. **Deterministic pre-call security pipeline.** Guardian checks run before tool calls. No LLM in the hot path.
+5. **Hash-chained audit and memory provenance.** Actions and memories can be verified for tampering.
+6. **Human authority baked in.** Destructive actions, sensitive memory writes, and unresolved conflicts can cross a human-controlled boundary.
 
-Other frameworks have one or two of these in libraries you can add. LegionForge has all five enforced and on by default.
+Other frameworks may support some of these with libraries or custom wiring. LegionForge makes them part of the platform posture.
 
 ## Where we *don't* differ
 
