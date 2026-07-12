@@ -18,6 +18,10 @@ The Security section is for people evaluating LegionForge as user-owned AI infra
 
     What the Jan 2026 OpenClaw incident exposed about fast-moving agent ecosystems, and which architectural patterns LegionForge addresses.
 
+-   :material-clipboard-check: **[Project security inventory](project-inventory.md)**
+
+    Repository-by-repository coverage map: visible CI, local audit status, deployment surfaces, and the next security question each repo should answer.
+
 </div>
 
 ## Where to go from here
@@ -25,6 +29,7 @@ The Security section is for people evaluating LegionForge as user-owned AI infra
 - For the *technical* security model — what runs where, what the deterministic checks look like — see [Framework → Security Model](../framework/security-model.md).
 - For Guardian's specific behavior — the 7 checks, the rule storage, the canary endpoint — see [Guardian → Architecture](../guardian/architecture.md).
 - For an introduction to the *thinking* behind the model — the LLM-is-not-trustworthy thesis, why deterministic, why sidecar — see [Concepts → Security fundamentals](../concepts/security-fundamentals.md).
+- For operational coverage across repos — what is checked, what is deployed, and what still needs wiring — see [Project security inventory](project-inventory.md).
 
 ## Reporting vulnerabilities
 

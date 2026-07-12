@@ -6,13 +6,13 @@
 
 ## What it does
 
-dev-rig is the **shared CI/CD substrate** used across every LegionForge repo. It provides:
+dev-rig is the **shared CI/CD substrate** used across LegionForge repos. It provides:
 
 - **Reusable GitHub Actions workflows** — lint, test, SAST, dependency audit, secrets scan, SBOM generation, container scan (Trivy)
-- **Pre-commit configuration** — Black, isort, ruff, mypy, bandit, detect-secrets
-- **Audit harness** — Bandit + pip-audit + URI scrubbing, runnable as a single make target
+- **Pre-commit configuration** — ruff, mypy, bandit, ShellCheck, OSV Scanner, and gitleaks
+- **Audit harness** — Python checks when applicable, OSV Scanner, gitleaks, ShellCheck, Semgrep packs, and LegionForge risky-exec rules
 
-The goal is that every project under the LegionForge org has the same security/quality baseline without copy-pasting workflow files between repos.
+The goal is that every project under the LegionForge org has a clear security/quality baseline without copy-pasting workflow files between repos.
 
 ## Status
 
@@ -52,7 +52,23 @@ jobs:
     uses: LegionForge/dev-rig/.github/workflows/sbom.yml@main
 ```
 
-That's the entire CI config — every workflow is sourced from dev-rig. Updating dev-rig updates the CI across all projects that reference `@main`.
+That's the entire CI config for a Python project — every workflow is sourced from dev-rig. Updating dev-rig updates the CI across all projects that reference `@main`.
+
+## Local audit
+
+Run the local harness against any repo:
+
+```bash
+LegionForge-dev-rig/scripts/audit.sh /path/to/repo
+```
+
+The harness is intentionally repo-shape aware:
+
+- Python checks run only when Python files or dependency manifests exist.
+- Static repos still receive applicable checks: OSV Scanner, gitleaks working-tree/history scans, ShellCheck when shell scripts exist, Semgrep packs when Docker is available, and the LegionForge risky-exec rules.
+- A skipped tool is not automatically a failure. It means the tool was not applicable or not available in the current environment.
+
+The current coverage map lives in [Security → Project security inventory](../security/project-inventory.md).
 
 ## Pre-commit
 

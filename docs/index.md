@@ -41,6 +41,7 @@ This is the central documentation hub for the LegionForge ecosystem: the framewo
 | Project | What it is |
 |---|---|
 | [Jeli](apps/jeli.md) | LegionForge's sovereign, cryptographically-attested personal memory framework. |
+| [ConvoBox](apps/convobox.md) | Local, backend-agnostic voice frontend for CLI coding agents. |
 | [ADHD-OS](apps/adhd-os.md) | Personal assistant framework for those with ADHD. |
 
 ---

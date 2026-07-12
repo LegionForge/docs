@@ -123,6 +123,7 @@ nav:
       - Threat Model: security/threat-model.md
       - Differentiators: security/differentiators.md
       - OpenClaw incident analysis: security/openclaw-incident.md
+      - Project security inventory: security/project-inventory.md
   - Tools:
       - tools/index.md
       - llm-valet: tools/llm-valet.md
