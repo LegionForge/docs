@@ -22,7 +22,7 @@ The AI diagnosis is **opt-in**, runs locally by default (via the LegionForge fra
 
 ## Status
 
-Active. Public.
+Active. Public. **Windows-only today** — the memory-metrics collectors are Windows-specific (`VirtualAlloc`/commit-charge APIs); macOS and Linux support is architected for (per-collector `#[cfg]` blocks) but not yet implemented.
 
 ## When to use it
 

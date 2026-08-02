@@ -8,8 +8,8 @@
 
 dev-rig is the **shared CI/CD substrate** used across LegionForge repos. It provides:
 
-- **Reusable GitHub Actions workflows** — lint, test, SAST, dependency audit, secrets scan, SBOM generation, container scan (Trivy)
-- **Pre-commit configuration** — ruff, mypy, bandit, ShellCheck, OSV Scanner, and gitleaks
+- **Reusable GitHub Actions workflows** — lint, test, SAST, dependency audit, secrets scan, SBOM generation, container scan (Trivy), and dynamic app scan (DAST), each with Python and Node/TypeScript variants, plus a growing set of Rust workflows (lint, test, audit, SBOM)
+- **Pre-commit configuration** — individual hooks for ruff, ruff-format, bandit, and mypy
 - **Audit harness** — Python checks when applicable, OSV Scanner, gitleaks, ShellCheck, Semgrep packs, and LegionForge risky-exec rules
 
 The goal is that every project under the LegionForge org has a clear security/quality baseline without copy-pasting workflow files between repos.
@@ -78,10 +78,13 @@ repos:
   - repo: https://github.com/LegionForge/dev-rig
     rev: v0.1.0
     hooks:
-      - id: legionforge-baseline
+      - id: ruff
+      - id: ruff-format
+      - id: bandit
+      - id: mypy
 ```
 
-The `legionforge-baseline` hook runs Black, ruff, isort, bandit, and detect-secrets. It's pinned to a tag, not `main`, so projects only adopt new rules deliberately.
+Each hook is pinned to a tag, not `main`, so projects only adopt new rules deliberately.
 
 ## When to use it outside LegionForge
 
