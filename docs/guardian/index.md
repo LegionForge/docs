@@ -53,6 +53,6 @@ Any check that fails → denied. The denial is logged to `threat_events` as `GUA
 
 | | |
 |---|---|
-| **Version** | 0.1.0 (PyPI) |
+| **Version** | 0.1.1 (PyPI) |
 | **License** | MIT (independent of the framework's AGPL-3.0) |
 | **Auto-sync** | Public repo auto-syncs from the framework's private dev branch |
