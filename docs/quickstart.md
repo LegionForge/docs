@@ -82,10 +82,10 @@ These are ~5 GB + 2 GB + 700 MB. On a slow connection this is the longest single
 ```bash
 make check       # verifies drive, venv, models, config
 make start       # full startup: Ollama warmup + DB checks + readiness
-make test-smoke  # ~21 seconds, 2247 tests, no external services
+make test-smoke  # ~21 seconds, 2255 tests, no external services
 ```
 
-Expected at v0.7.1-alpha: **2247 passing**.
+Expected at v0.7.1-alpha: **2255 passing**.
 
 ## Step 7 — Start the gateway
 

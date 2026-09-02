@@ -70,7 +70,7 @@ The smoke suite is fast (~21 s, no external services required):
 make test-smoke
 ```
 
-You should see **2247 passing** at the v0.7.1-alpha baseline.
+You should see **2255 passing** at the v0.7.1-alpha baseline.
 
 ## Send your first task
 
