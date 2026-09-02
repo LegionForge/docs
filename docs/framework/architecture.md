@@ -155,7 +155,7 @@ Current test baseline:
 
 | Suite | Count |
 |---|---|
-| Smoke | 2247 |
+| Smoke | 2255 |
 | Integration | 38 |
 | Kerberos live-KDC | 5 |
 | UI (Playwright) | 40 |
