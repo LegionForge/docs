@@ -76,7 +76,7 @@ The current coverage map lives in [Security → Project security inventory](../s
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/LegionForge/dev-rig
-    rev: v0.1.0
+    rev: <commit-sha>   # dev-rig has no tagged releases yet — pin to a commit SHA
     hooks:
       - id: ruff
       - id: ruff-format
@@ -84,7 +84,7 @@ repos:
       - id: mypy
 ```
 
-Each hook is pinned to a tag, not `main`, so projects only adopt new rules deliberately.
+Each hook is pinned to a specific commit, not `main`, so projects only adopt new rules deliberately. dev-rig does not currently cut version tags (`pyproject.toml` says 0.2.0, but no `v0.2.0`/`v0.1.0` tag exists on the repo) — use the commit SHA you last verified against, not a tag name.
 
 ## When to use it outside LegionForge
 
