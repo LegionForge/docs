@@ -23,26 +23,26 @@ coverage explicit so gaps are easy to prioritize.
 | [LegionForge](https://github.com/LegionForge/LegionForge) | Core sovereign agent framework | Python | CI, smoke tests, PostgreSQL test workflow | Core runtime repo; should remain a first-class security target. | Are all reusable dev-rig jobs required on PRs? |
 | [guardian](https://github.com/LegionForge/guardian) | Deterministic agent security sidecar | Python | CI, tests, DAST, OSS audit, publish workflow | High-security repo with broad workflow coverage. | Is the local checkout remote aligned with the public lowercase `guardian` repo? |
 | [jeli](https://github.com/LegionForge/jeli) | Sovereign personal memory governance | Python | CI, workflow lint | Memory custody project; needs the strongest docs-to-tests traceability. | Are export, redaction, conflict resolution, and chain verification all covered by CI? |
-| [convobox](https://github.com/LegionForge/convobox) | Local voice frontend for coding agents | Python | No workflow files visible in local checkout | Safety-critical because voice commands can trigger agent actions. | Should dev-rig CI become required before adapters stabilize? |
+| [convobox](https://github.com/LegionForge/convobox) | Local voice frontend for coding agents | Python | CI, publish, AI-attribution workflows | Safety-critical because voice commands can trigger agent actions. dev-rig CI now wired in. | Should dev-rig CI become required (not just present) before adapters stabilize? |
 | [dev-rig](https://github.com/LegionForge/dev-rig) | Shared audit/CI baseline | Python, shell, GitHub Actions | Audit, CI, lint, SAST, SBOM, secrets, supply-chain workflows | Source of truth for common checks. Local audit now supports static repos. | Should consuming repos pin tags or track `@main`? |
 | [docs](https://github.com/LegionForge/docs) | Documentation hub | MkDocs | Pages deploy workflow | Public security claims live here. | Should docs PRs require link/build checks and static audit? |
 | [legionforge.github.io](https://github.com/LegionForge/legionforge.github.io) | Public website | Jekyll/static site | No workflow files visible in local checkout | Published via GitHub Pages from the repo. Static audit passes through dev-rig. | Should Pages deployment and link checks be explicit workflows? |
 | [mcp-probe](https://github.com/LegionForge/mcp-probe) | MCP configuration/connectivity advisor | TypeScript | Audit, CI, SAST, secrets workflows | Network-adjacent diagnostic tool; good candidate for strict supply-chain checks. | Are npm lockfile audits and Semgrep required on PRs? |
 | [llm-valet](https://github.com/LegionForge/llm-valet) | Local LLM lifecycle/resource manager | Python | CI, publish workflow | Operational daemon touching local resource policy. | Does CI include dependency audit, SAST, and secrets scan? |
-| [headroom](https://github.com/LegionForge/headroom) | System stability monitor | Rust | Not reviewed locally | Resource-monitoring tool. | Should Rust-specific checks include `cargo test`, `cargo audit`, and `cargo deny`? |
-| [hermes-tool-test-suite](https://github.com/LegionForge/hermes-tool-test-suite) | Hermes tool-call validation harness | Python | No workflow files visible in local checkout | Test harness repo; useful for regression confidence. | Should this consume dev-rig CI even if it primarily tests another project? |
+| [headroom](https://github.com/LegionForge/headroom) | System stability monitor | Rust | CI with cargo audit (RustSec), clippy `-D warnings`, fmt check, Trivy | Reviewed 2026-09; Cargo.lock CVEs (crossbeam-epoch, sysinfo, windows) patched, one Semgrep unsafe-usage finding suppressed with a documented SAFETY comment. | `cargo deny` (license/ban policy) still not wired in — worth adding? |
+| [hermes-tool-test-suite](https://github.com/LegionForge/hermes-tool-test-suite) | Hermes tool-call validation harness | Python | CI (dev-rig) | Test harness repo; useful for regression confidence. dev-rig CI now wired in. | Should this consume dev-rig CI even if it primarily tests another project? (Answered: yes, now does.) |
 | [ADHD-OS](https://github.com/LegionForge/ADHD-OS) | Personal assistant framework | Early-stage | No workflow files visible in local checkout | Product direction appears early-stage. | What privacy/security claims are safe to make publicly today? |
 | [Briarios](https://github.com/LegionForge/Briarios) | Agentic workstream orchestration research | Early-stage | No workflow files visible in local checkout | Directional orchestration repo. | Is this research-only or planned runtime infrastructure? |
 | [Intelligence-Delivery-Network](https://github.com/LegionForge/Intelligence-Delivery-Network) | LLM routing/research concept | Research | No workflow files visible in local checkout | Research repo with requirements file locally. | Should public docs label this as research until runtime hardening exists? |
 | [Intelligence-Delivery-Network-Request-Analyzer](https://github.com/LegionForge/Intelligence-Delivery-Network-Request-Analyzer) | Lightweight prompt/request profiler | C / Python-adjacent files locally | No workflow files visible in local checkout | Analysis tool; may need language-specific checks. | What build/test command should define a passing audit? |
 | [media](https://github.com/LegionForge/media) | Brand/media assets | Shell/static assets | Pages publish, asset validation workflows | Non-runtime repo, but still receives secret/static checks. | Should asset provenance and licensing be documented? |
+| [screenwright](https://github.com/LegionForge/screenwright) | AI UI documentation pipeline (browser automation → screenshots/GIFs) | Python | CI, publish, security workflows | Public repo (previously listed as private below — corrected 2026-09). | Does it need browser/credential isolation rules documented publicly? |
 
 ## Private repos
 
 | Repo | Role | Current note | Next question |
 |---|---|---|---|
 | `legionforge-orchestration` | Internal project orchestration | Private operational repo. | Which checks are mandatory before automations can touch public repos? |
-| `screenwright` | AI UI documentation pipeline | Private Python repo. | Does it need browser/credential isolation rules documented? |
 | `firmwright` | Firmware dev/test/QA/OTA harness | Private Python repo. | Does OTA or device access require a stricter release gate? |
 
 ## Baseline questions to answer for each repo
@@ -56,7 +56,7 @@ coverage explicit so gaps are easy to prioritize.
 
 ## Current priorities
 
-1. Wire dev-rig CI into public repos that have no visible workflow coverage.
+1. ~~Wire dev-rig CI into public repos that have no visible workflow coverage.~~ Done as of 2026-09 for convobox, hermes-tool-test-suite, headroom, and screenwright — legionforge.github.io remains the one public repo with no workflow files (Pages deploy is implicit, not an explicit workflow yet — see priority 4).
 2. Require secret scanning and dependency/SBOM checks for docs, website, and app repos.
 3. Add language-specific coverage where dev-rig is not enough: Rust for `headroom`, TypeScript/npm for `mcp-probe`, and C/build checks for the request analyzer.
 4. Document deployment paths for `docs` and `legionforge.github.io`, including the branch and workflow that publish production.
