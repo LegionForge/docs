@@ -12,9 +12,15 @@ The pipeline is entirely local by default: continuous mic capture, on-device voi
 
 ## Status
 
-All three backend adapters — OpenCode (HTTP+SSE), Claude Code (stream-json subprocess), and Codex (app-server JSON-RPC) — have been driven through the full live voice loop, including real tool use, on Windows 11. Linux/macOS are implemented but not yet voice-validated end to end.
+| | |
+|---|---|
+| **Version** | 0.4.0 (PyPI, package `legionforge-convobox`) |
+| **License** | MIT |
+| **Install** | `pip install legionforge-convobox` |
 
-Past the initial pipeline (mic → VAD → STT → safeword → orchestrator → backend → TTS), a substantial interaction/safety layer has since landed: barge-in presets, a live conversation TUI, response tiering, voice-gated tool approval, acoustic echo cancellation, and a local web UI. None of this is a stable end-user product yet — it's a working, extensively tested prototype under active live-UAT iteration, not a packaged release.
+**v0.4.0 is the first packaged release.** All three backend adapters — OpenCode (HTTP+SSE), Claude Code (stream-json subprocess), and Codex (app-server JSON-RPC) — have been driven through the full live voice loop, including real tool use, on Windows 11, the reference platform. Linux/macOS run the same adapters and pipeline but were not yet voice-validated end to end as of this release — see the [GitHub repo](https://github.com/LegionForge/convobox) for current status, which moves faster than tagged releases.
+
+Past the initial pipeline (mic → VAD → STT → safeword → orchestrator → backend → TTS), a substantial interaction/safety layer has landed: barge-in presets, a live conversation TUI, response tiering, voice-gated tool approval, acoustic echo cancellation, and a local web UI.
 
 ## Interaction & safety features
 
@@ -49,6 +55,6 @@ Each coding-agent CLI gets its own adapter behind the same small interface:
 
 ## Known limits
 
-- Linux and macOS have the same adapters/pipeline as Windows but haven't been voice-validated end to end there yet.
+- Linux and macOS have the same adapters/pipeline as Windows but had not been voice-validated end to end as of the v0.4.0 release.
 - Browser-side approve/deny for the web UI isn't built — it's an open design question (how a browser decision should interact with a simultaneous voice answer), not just an unwritten endpoint.
 - No remote-access or authentication story for the web UI by design — it's meant for the same machine only.
